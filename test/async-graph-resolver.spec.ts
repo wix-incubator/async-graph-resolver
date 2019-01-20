@@ -67,7 +67,7 @@ describe('AsyncGraphResolver', () => {
       });
     });
 
-    it('resolve a complex graph', async () => {
+    it('should resolve a complex graph', async () => {
       const graph = new AsyncGraph();
 
       graph
