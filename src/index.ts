@@ -4,74 +4,64 @@ interface IAsyncNode {
   dependencies?: string[];
 }
 
-// const resolveAsyncNodes = async (nodes, resolvedNodesMap = {}) => {
-//   const nodesReadyToBeResolved = nodes.filter(
-//     node =>
-//       !node.dependencies ||
-//       node.dependencies.every(dependency => resolvedNodesMap[dependency]),
-//   );
-//   const unresolvedNodes = nodes.filter(
-//     node => !nodesReadyToBeResolved.includes(node),
-//   );
-//   const result = {};
-
-//   await Promise.all(
-//     nodesReadyToBeResolved.map(node =>
-//       node.run().then(value => {
-//         resolvedNodesMap[node.id] = value;
-//         return Promise.all(unresolvedNodes.filter(({ dependencies }) =>
-//           dependencies.every(dependency => resolvedNodesMap[dependency]),
-//         );
-//       }),
-//     ),
-//   );
-
-//   return result;
-// };
-// export class AsyncGraph {
-//   nodes: IAsyncNode[];
-//   resolvedNodeValues: {};
-
-//   constructor() {
-//     this.nodes = [];
-//     this.resolvedNodeValues = {};
-//   }
-
-//   addNode(asyncNode: IAsyncNode) {
-//     this.nodes.push(asyncNode);
-//     return this;
-//   }
-
-//   async resolve() {
-//     return this.resolvedNodeValues;
-//   }
-// }
-
 export class AsyncGraph {
-  unReslovedNodes: IAsyncNode[];
-  readyToResolveNodes: IAsyncNode[];
+  nodes: IAsyncNode[];
+  nodesCount: number;
   resolvedNodes: IAsyncNode[];
   resolvedNodesValues: {};
   graphResolved: Promise<any>;
+  resolveGraph: (any) => void;
 
   constructor() {
-    this.unReslovedNodes = [];
-    this.readyToResolveNodes = [];
+    this.nodes = [];
     this.resolvedNodes = [];
     this.resolvedNodesValues = {};
-    this.graphResolved = new Promise(() => {
-      return this.resolvedNodesValues;
-    });
   }
 
   addNode(asyncNode: IAsyncNode) {
-    this.unReslovedNodes.push(asyncNode);
+    this.nodes.push(asyncNode);
     return this;
   }
 
+  isReadyToResolve(node: IAsyncNode) {
+    return (
+      !node.dependencies ||
+      node.dependencies.every(
+        dep => !!this.resolvedNodes.find(rnode => rnode.id === dep),
+      )
+    );
+  }
+
+  resolveSingleNode(node: IAsyncNode) {
+    return node.run(this.resolvedNodesValues).then(result => {
+      this.resolvedNodesValues = {
+        ...this.resolvedNodesValues,
+        ...{ [node.id]: result },
+      };
+      this.resolvedNodes.push(node);
+      this.resolveReadyNodes();
+    });
+  }
+
+  resolveReadyNodes() {
+    if (this.nodesCount === this.resolvedNodes.length) {
+      this.resolveGraph(this.resolvedNodesValues);
+      return;
+    }
+    this.nodes
+      .filter(node => this.isReadyToResolve(node))
+      .forEach(node => this.resolveSingleNode(node));
+
+    this.nodes = this.nodes.filter(node => !this.isReadyToResolve(node));
+  }
+
   async resolve() {
-    this.readyToResolveNodes = [...this.unReslovedNodes.filter(node => isReadyToResolve(node)), ...this.readyToResolveNodes];
-    this.unReslovedNodes = this.unReslovedNodes.filter(node => !isReadyToResolve(node));
-    return this.graphResolved;
+    this.nodesCount = this.nodes.length;
+
+    this.resolveReadyNodes();
+
+    return new Promise((resolve, reject) => {
+      this.resolveGraph = resolve;
+    });
   }
 }
