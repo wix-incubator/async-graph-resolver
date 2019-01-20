@@ -51,10 +51,10 @@ export class AsyncGraph {
   }
 
   private resolveSingleNode(node: IAsyncNode) {
-    return node.run(this.result).then(result => {
+    return node.run(this.result).then(nodeResult => {
       this.result = {
         ...this.result,
-        ...{ [node.id]: result },
+        ...{ [node.id]: nodeResult },
       };
       this.resolvedNodes.push(node);
       this.resolveReadyNodes();
