@@ -20,8 +20,15 @@
 
     <developers>
         <developer>
-            <name>Sela Marjan Almog & Maksym Petruk</name>
+            <name>Sela Marjan Almog</name>
             <email>selama@wix.com</email>
+            <roles>
+                <role>owner</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Maksym Petruk</name>
+            <email>maksimpe@wix.com</email>
             <roles>
                 <role>owner</role>
             </roles>
