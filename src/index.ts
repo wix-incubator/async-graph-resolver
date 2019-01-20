@@ -45,7 +45,8 @@ export class AsyncGraph {
     return (
       !node.dependencies ||
       node.dependencies.every(
-        dep => !!this.resolvedNodes.find(rnode => rnode.id === dep),
+        dep =>
+          !!this.resolvedNodes.find(resolvedNode => resolvedNode.id === dep),
       )
     );
   }
