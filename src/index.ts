@@ -10,15 +10,14 @@ export class AsyncGraph {
   nodes: IAsyncNode[];
   nodesCount: number;
   resolvedNodes: IAsyncNode[];
-  resolvedNodesValues: {};
-  graphResolved: Promise<any>;
+  result: any;
   resolveGraph: (any) => void;
   formatter: IAsyncResultFormatter;
 
   constructor() {
     this.nodes = [];
     this.resolvedNodes = [];
-    this.resolvedNodesValues = {};
+    this.result = {};
     this.formatter = result => result;
   }
 
@@ -52,9 +51,9 @@ export class AsyncGraph {
   }
 
   private resolveSingleNode(node: IAsyncNode) {
-    return node.run(this.resolvedNodesValues).then(result => {
-      this.resolvedNodesValues = {
-        ...this.resolvedNodesValues,
+    return node.run(this.result).then(result => {
+      this.result = {
+        ...this.result,
         ...{ [node.id]: result },
       };
       this.resolvedNodes.push(node);
@@ -64,7 +63,7 @@ export class AsyncGraph {
 
   private resolveReadyNodes() {
     if (this.nodesCount === this.resolvedNodes.length) {
-      this.resolveGraph(this.formatter(this.resolvedNodesValues));
+      this.resolveGraph(this.formatter(this.result));
       return;
     }
     this.nodes
