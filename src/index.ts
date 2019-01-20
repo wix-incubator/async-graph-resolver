@@ -18,12 +18,22 @@ export class AsyncGraph {
     this.resolvedNodesValues = {};
   }
 
-  addNode(asyncNode: IAsyncNode) {
+  public addNode(asyncNode: IAsyncNode) {
     this.nodes.push(asyncNode);
     return this;
   }
 
-  isReadyToResolve(node: IAsyncNode) {
+  public async resolve() {
+    this.nodesCount = this.nodes.length;
+
+    this.resolveReadyNodes();
+
+    return new Promise((resolve, reject) => {
+      this.resolveGraph = resolve;
+    });
+  }
+
+  private isReadyToResolve(node: IAsyncNode) {
     return (
       !node.dependencies ||
       node.dependencies.every(
@@ -32,7 +42,7 @@ export class AsyncGraph {
     );
   }
 
-  resolveSingleNode(node: IAsyncNode) {
+  private resolveSingleNode(node: IAsyncNode) {
     return node.run(this.resolvedNodesValues).then(result => {
       this.resolvedNodesValues = {
         ...this.resolvedNodesValues,
@@ -43,7 +53,7 @@ export class AsyncGraph {
     });
   }
 
-  resolveReadyNodes() {
+  private resolveReadyNodes() {
     if (this.nodesCount === this.resolvedNodes.length) {
       this.resolveGraph(this.resolvedNodesValues);
       return;
@@ -53,15 +63,5 @@ export class AsyncGraph {
       .forEach(node => this.resolveSingleNode(node));
 
     this.nodes = this.nodes.filter(node => !this.isReadyToResolve(node));
-  }
-
-  async resolve() {
-    this.nodesCount = this.nodes.length;
-
-    this.resolveReadyNodes();
-
-    return new Promise((resolve, reject) => {
-      this.resolveGraph = resolve;
-    });
   }
 }
