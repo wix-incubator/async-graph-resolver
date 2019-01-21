@@ -1,3 +1,5 @@
+import { DuplicateNodeIdError, CircularDependencyError } from './errors';
+
 export interface IAsyncNode {
   id: string;
   run(object?: any): Promise<any>;
@@ -5,6 +7,30 @@ export interface IAsyncNode {
 }
 
 export type IAsyncResultFormatter = (nodes: any) => any;
+
+const hasCircularDependencies = (nodes: IAsyncNode[], node: IAsyncNode) => {
+  const flattenedDependencies = new Set();
+
+  const internalSearch = ({ id, dependencies }: IAsyncNode) => {
+    if (flattenedDependencies.has(id)) {
+      return true;
+    }
+    flattenedDependencies.add(id);
+    const hasCircularDepndency = dependencies.some(_id => {
+      const dependecyNode = nodes.find(_node => _node.id === _id);
+      if (!dependecyNode) {
+        return false;
+      }
+      return internalSearch(dependecyNode);
+    });
+    if (!hasCircularDepndency) {
+      flattenedDependencies.delete(id);
+    }
+    return hasCircularDepndency;
+  };
+
+  return internalSearch(node);
+};
 
 export class AsyncGraph {
   private readonly nodes: IAsyncNode[];
@@ -19,7 +45,24 @@ export class AsyncGraph {
     this.formatter = result => result;
   }
 
-  public addNode(asyncNode: IAsyncNode) {
+  private validateNode(unverifiedNode: IAsyncNode) {
+    const hasUniqueId = !this.nodes.some(node => node.id === unverifiedNode.id);
+    if (!hasUniqueId) {
+      throw DuplicateNodeIdError(unverifiedNode);
+    }
+
+    const hasCircularDependency = hasCircularDependencies(
+      this.nodes.concat(unverifiedNode),
+      unverifiedNode,
+    );
+    if (hasCircularDependency) {
+      throw CircularDependencyError(unverifiedNode);
+    }
+  }
+
+  public addNode({ id, run, dependencies = [] }: IAsyncNode) {
+    const asyncNode = { id, run, dependencies };
+    this.validateNode(asyncNode);
     this.nodes.push(asyncNode);
     return this;
   }
