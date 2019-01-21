@@ -19,16 +19,20 @@ AGR is aiming to simplify the way to describe the actions graph, and resolve it 
 ```javascript
 import { AsyncGraph } from 'async-graph-resolver';
 
-const customerId = '123';
-
 const relevantRestaurantsGraph = new AsyncGraph()
   .addNode({
+    id: 'raffledCustomerId',
+    run: () => getRaffledCustomerId()
+  })
+  .addNode({
     id: 'customerPreferences',
-    run: () => getCustomerPreferences(customerId)
+    run: ({raffledCustomerId}) => getCustomerPreferences(raffledCustomerId),
+    dependancies: ['raffledCustomerId']
   })
   .addNode({
     id: 'customerLocation',
-    run: () => getCustomerLocation(customerId)
+    run: ({raffledCustomerId}) => getCustomerLocation(raffledCustomerId),
+    dependancies: ['raffledCustomerId']
   })
   .addNode({
     id: 'availableRestaurants',
@@ -37,7 +41,8 @@ const relevantRestaurantsGraph = new AsyncGraph()
   })
   .addNode({
     id: 'customerFriends',
-    run: () => getCusomterFriends(customerId)
+    run: ({raffledCustomerId}) => getCusomterFriends(raffledCustomerId),
+    dependancies: ['raffledCustomerId']
   })
   .addNode({
     id: 'recommendedRestaurants',
