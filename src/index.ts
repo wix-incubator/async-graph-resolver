@@ -87,10 +87,7 @@ export class AsyncGraph {
   }
 
   private isReadyToResolve(node: IAsyncNode) {
-    return (
-      !node.dependencies ||
-      node.dependencies.every(dep => this.result.hasOwnProperty(dep))
-    );
+    return node.dependencies.every(dep => this.result.hasOwnProperty(dep));
   }
 
   private resolveSingleNode(node: IAsyncNode) {

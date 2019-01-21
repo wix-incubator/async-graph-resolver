@@ -277,14 +277,14 @@ describe('AsyncGraphResolver', () => {
     });
 
     it('should throw an error when trying to add a node that creates circular dependency to itself', () => {
-      const addNonUniqueNodes = (graph: AsyncGraph) =>
+      const addNodeWithReferenceToItself = (graph: AsyncGraph) =>
         graph.addNode({
           id: 'A',
           run: Promise.resolve,
           dependencies: ['A'],
         });
 
-      expect(() => addNonUniqueNodes(new AsyncGraph())).to.throw(
+      expect(() => addNodeWithReferenceToItself(new AsyncGraph())).to.throw(
         Error,
         `Adding async node with id: 'A' creates circular dependency`,
       );
@@ -317,42 +317,6 @@ describe('AsyncGraphResolver', () => {
         Error,
         `Adding async node with id: 'B' creates circular dependency`,
       );
-    });
-  });
-
-  it('should resolve once again for 2 graph instances', async () => {
-    const graph1 = new AsyncGraph();
-    const graph2 = new AsyncGraph();
-    let nodeRunsCounter = 0;
-    let backendAsyncResult = 'First Result';
-
-    graph1.addNode({
-      id: 'id1',
-      run: () => {
-        nodeRunsCounter++;
-        return Promise.resolve(backendAsyncResult);
-      },
-    });
-
-    graph2.addNode({
-      id: 'id1',
-      run: () => {
-        nodeRunsCounter++;
-        return Promise.resolve(backendAsyncResult);
-      },
-    });
-
-    const firstResult = await graph1.resolve();
-
-    backendAsyncResult = 'Second Result';
-    const secondResult = await graph2.resolve();
-
-    expect(nodeRunsCounter).to.eq(2);
-    expect(firstResult).to.deep.eq({
-      id1: 'First Result',
-    });
-    expect(secondResult).to.deep.eq({
-      id1: 'Second Result',
     });
   });
 });
