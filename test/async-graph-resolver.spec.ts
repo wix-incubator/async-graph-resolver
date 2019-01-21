@@ -227,4 +227,32 @@ describe('AsyncGraphResolver', () => {
       ]);
     });
   });
+
+  describe('multiple resolving', () => {
+    it('should enable graph multiple times', async () => {
+      const graph = new AsyncGraph();
+
+      let backendResourceState = 1;
+
+      graph.addNode({
+        id: 'id1',
+        run: () => Promise.resolve(backendResourceState),
+      });
+
+      const firstResult = await graph.resolve();
+
+      backendResourceState = 2;
+
+      const secondResult = await graph.resolve();
+
+      expect({ firstResult, secondResult }).to.deep.eq({
+        firstResult: {
+          id1: 1,
+        },
+        secondResult: {
+          id1: 2,
+        },
+      });
+    });
+  });
 });

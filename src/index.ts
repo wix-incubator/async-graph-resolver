@@ -7,17 +7,14 @@ export interface IAsyncNode {
 export type IAsyncResultFormatter = (nodes: any) => any;
 
 export class AsyncGraph {
-  nodes: IAsyncNode[];
-  nodesCount: number;
-  resolvedNodes: IAsyncNode[];
-  result: any;
-  resolveGraph: (any) => void;
-  formatter: IAsyncResultFormatter;
+  private readonly nodes: IAsyncNode[];
+  private unresolvedNodes: IAsyncNode[];
+  private result: any;
+  private resolveGraph: (any) => void;
+  private formatter: IAsyncResultFormatter;
 
   constructor() {
     this.nodes = [];
-    this.resolvedNodes = [];
-    this.result = {};
     this.formatter = result => result;
   }
 
@@ -31,7 +28,8 @@ export class AsyncGraph {
   }
 
   public async resolve() {
-    this.nodesCount = this.nodes.length;
+    this.unresolvedNodes = [...this.nodes];
+    this.result = {};
 
     this.resolveReadyNodes();
 
@@ -43,10 +41,7 @@ export class AsyncGraph {
   private isReadyToResolve(node: IAsyncNode) {
     return (
       !node.dependencies ||
-      node.dependencies.every(
-        dep =>
-          !!this.resolvedNodes.find(resolvedNode => resolvedNode.id === dep),
-      )
+      node.dependencies.every(dep => this.result.hasOwnProperty(dep))
     );
   }
 
@@ -56,20 +51,21 @@ export class AsyncGraph {
         ...this.result,
         ...{ [node.id]: nodeResult },
       };
-      this.resolvedNodes.push(node);
       this.resolveReadyNodes();
     });
   }
 
   private resolveReadyNodes() {
-    if (this.nodesCount === this.resolvedNodes.length) {
+    if (this.nodes.length === Object.keys(this.result).length) {
       this.resolveGraph(this.formatter(this.result));
       return;
     }
-    this.nodes
+    this.unresolvedNodes
       .filter(node => this.isReadyToResolve(node))
       .forEach(node => this.resolveSingleNode(node));
 
-    this.nodes = this.nodes.filter(node => !this.isReadyToResolve(node));
+    this.unresolvedNodes = this.unresolvedNodes.filter(
+      node => !this.isReadyToResolve(node),
+    );
   }
 }
