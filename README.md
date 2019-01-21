@@ -21,7 +21,7 @@ import { AsyncGraph } from 'async-graph-resolver';
 
 const customerId = '123';
 
-const relevantResturantsGraph = new AsyncGraph()
+const relevantRestaurantsGraph = new AsyncGraph()
   .addNode({
     id: 'customerPreferences',
     run: () => getCustomerPreferences(customerId)
@@ -48,5 +48,5 @@ const relevantResturantsGraph = new AsyncGraph()
     relevantResturants: recommendedRestaurants
   });
 
-const result = await relevantResturantsGraph.resolve();
+const result = await relevantRestaurantsGraph.resolve();
 ```
