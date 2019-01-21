@@ -12,6 +12,7 @@ export class AsyncGraph {
   private result: any;
   private resolveGraph: (any) => void;
   private formatter: IAsyncResultFormatter;
+  private graphPromise: Promise<any>;
 
   constructor() {
     this.nodes = [];
@@ -28,14 +29,18 @@ export class AsyncGraph {
   }
 
   public async resolve() {
-    this.unresolvedNodes = [...this.nodes];
-    this.result = {};
+    if (!this.graphPromise) {
+      this.unresolvedNodes = [...this.nodes];
+      this.result = {};
 
-    this.resolveReadyNodes();
+      this.resolveReadyNodes();
 
-    return new Promise((resolve, reject) => {
-      this.resolveGraph = resolve;
-    });
+      this.graphPromise = new Promise((resolve, reject) => {
+        this.resolveGraph = resolve;
+      });
+    }
+
+    return this.graphPromise;
   }
 
   private isReadyToResolve(node: IAsyncNode) {

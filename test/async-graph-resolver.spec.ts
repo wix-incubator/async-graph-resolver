@@ -229,30 +229,67 @@ describe('AsyncGraphResolver', () => {
   });
 
   describe('multiple resolving', () => {
-    it('should enable graph multiple times', async () => {
+    it('should return cached result in case of multiple resolving', async () => {
       const graph = new AsyncGraph();
-
-      let backendResourceState = 1;
+      let nodeRunsCounter = 0;
+      let backendAsyncResult = 'First Result';
 
       graph.addNode({
         id: 'id1',
-        run: () => Promise.resolve(backendResourceState),
+        run: () => {
+          nodeRunsCounter++;
+          return Promise.resolve(backendAsyncResult);
+        },
       });
 
       const firstResult = await graph.resolve();
 
-      backendResourceState = 2;
-
+      backendAsyncResult = 'Second Result';
       const secondResult = await graph.resolve();
 
-      expect({ firstResult, secondResult }).to.deep.eq({
-        firstResult: {
-          id1: 1,
-        },
-        secondResult: {
-          id1: 2,
-        },
+      expect(nodeRunsCounter).to.eq(1);
+      expect(firstResult).to.deep.eq({
+        id1: 'First Result',
       });
+      expect(secondResult).to.deep.eq({
+        id1: 'First Result',
+      });
+    });
+  });
+
+  it('should resolve once again for 2 graph instances', async () => {
+    const graph1 = new AsyncGraph();
+    const graph2 = new AsyncGraph();
+    let nodeRunsCounter = 0;
+    let backendAsyncResult = 'First Result';
+
+    graph1.addNode({
+      id: 'id1',
+      run: () => {
+        nodeRunsCounter++;
+        return Promise.resolve(backendAsyncResult);
+      },
+    });
+
+    graph2.addNode({
+      id: 'id1',
+      run: () => {
+        nodeRunsCounter++;
+        return Promise.resolve(backendAsyncResult);
+      },
+    });
+
+    const firstResult = await graph1.resolve();
+
+    backendAsyncResult = 'Second Result';
+    const secondResult = await graph2.resolve();
+
+    expect(nodeRunsCounter).to.eq(2);
+    expect(firstResult).to.deep.eq({
+      id1: 'First Result',
+    });
+    expect(secondResult).to.deep.eq({
+      id1: 'Second Result',
     });
   });
 });
