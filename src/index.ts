@@ -1,4 +1,8 @@
-import { DuplicateNodeIdError, CircularDependencyError } from './errors';
+import {
+  DuplicateNodeIdError,
+  CircularDependencyError,
+  InvalidDependencyError,
+} from './errors';
 
 export interface IAsyncNode {
   id: string;
@@ -43,6 +47,8 @@ export class AsyncGraph {
   constructor() {
     this.nodes = [];
     this.formatter = result => result;
+    this.resolve = this.resolve.bind(this);
+    this.addNode = this.addNode.bind(this);
   }
 
   private validateNode(unverifiedNode: IAsyncNode) {
@@ -71,10 +77,27 @@ export class AsyncGraph {
     this.formatter = formatter;
   }
 
-  public async resolve() {
+  private verifyGraphDependencies() {
+    const ids = new Set(this.nodes.map(({ id }) => id));
+    const dependenciesIds = new Set(
+      this.nodes.reduce(
+        (dependenciesList, node) => dependenciesList.concat(node.dependencies),
+        [],
+      ),
+    );
+    dependenciesIds.forEach(dependencyId => {
+      if (!ids.has(dependencyId)) {
+        throw InvalidDependencyError(dependencyId);
+      }
+    });
+  }
+
+  public resolve() {
     if (!this.graphPromise) {
       this.unresolvedNodes = [...this.nodes];
       this.result = {};
+
+      this.verifyGraphDependencies();
 
       this.resolveReadyNodes();
 

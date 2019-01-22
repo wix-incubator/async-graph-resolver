@@ -5,3 +5,6 @@ export const CircularDependencyError = node =>
   new Error(
     `Adding async node with id: '${node.id}' creates circular dependency`,
   );
+
+export const InvalidDependencyError = dependencyId =>
+  new Error(`Dependency with id: '${dependencyId}' doesn't exist`);
