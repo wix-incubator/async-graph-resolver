@@ -1,3 +1,5 @@
+<a href="https://travis-ci.org/wix-incubator/async-graph-resolver"><img src="https://travis-ci.org/wix-incubator/async-graph-resolver.svg?branch=master" alt="build status"></a>
+
 # async-graph-resolver
 A utility to handle execution and aggregation of async actions.
 
