@@ -15,6 +15,8 @@ AGR is aiming to simplify the way to describe the actions graph, and resolve it 
 
 ### Install
 
+`npm i async-graph-resolver`
+
 ### API
 
 ### Examples
