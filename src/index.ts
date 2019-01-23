@@ -40,7 +40,8 @@ export class AsyncGraph {
   private readonly nodes: IAsyncNode[];
   private unresolvedNodes: IAsyncNode[];
   private result: any;
-  private resolveGraph: () => void;
+  private hasFailed: boolean;
+  private resolveGraph: (error?: Error) => void;
   private formatter: IAsyncResultFormatter;
   private graphPromise: Promise<any>;
 
@@ -102,8 +103,9 @@ export class AsyncGraph {
       this.resolveReadyNodes();
 
       this.graphPromise = new Promise((resolve, reject) => {
-        this.resolveGraph = resolve;
-      }).then(() => this.formatter(this.result));
+        this.resolveGraph = error =>
+          error ? reject(error) : resolve(this.result);
+      }).then(this.formatter);
     }
 
     return this.graphPromise;
@@ -124,13 +126,20 @@ export class AsyncGraph {
   }
 
   private resolveReadyNodes() {
-    if (this.nodes.length === Object.keys(this.result).length) {
-      this.resolveGraph();
-      return;
+    if (
+      this.nodes.length === Object.keys(this.result).length ||
+      this.hasFailed
+    ) {
+      return this.resolveGraph();
     }
     this.unresolvedNodes
       .filter(node => this.isReadyToResolve(node))
-      .forEach(node => this.resolveSingleNode(node));
+      .forEach(node =>
+        this.resolveSingleNode(node).catch(error => {
+          this.hasFailed = true;
+          this.resolveGraph(error);
+        }),
+      );
 
     this.unresolvedNodes = this.unresolvedNodes.filter(
       node => !this.isReadyToResolve(node),
