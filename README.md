@@ -1,11 +1,11 @@
 <a href="https://travis-ci.org/wix-incubator/async-graph-resolver"><img src="https://travis-ci.org/wix-incubator/async-graph-resolver.svg?branch=master" alt="build status"></a>
 
 # async-graph-resolver
-A utility to handle execution and aggregation of async actions.
+A utility to simplify writing and optimize execution of dependant async actions.
 
 ## Introduction
 
-Main goal of this utility is to simplify execution and aggregation of results of asynchronous operations with complicated dependencies in more straightforward way without sacrificing efficiency.
+Main goal of this utility is to simplify execution of results of asynchronous operations with complicated dependencies in more straightforward way without sacrificing efficiency.
 
 This is especially relevant when extending your flow with new async dependecies in already complicated flows.
 
