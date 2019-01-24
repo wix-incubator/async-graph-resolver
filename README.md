@@ -17,11 +17,13 @@ Async graph resolver shines in cases when you have a bunch of asynchronous reque
 
 ### Install
 
-`npm i async-graph-resolver`
+```
+npm i async-graph-resolver --save
+```
 
 ### API
 
-`AsyncNode` - is an object that describes structure of each graph node, and since it's only
+`AsyncNode` - is an object that describes structure of each graph node
 - `id: string` - unique string indentifier for each node
 - `run: function(dependecies: Object): Promise<any>` - function to run asyncronous operation to resolve this node's value. If current node has dependencies it recieves them as a key value object map.
 - `dependencies?: string[]` - optional array of unique ids to specify which nodes this node depend on, result of those nodes will be provided to `run` function as an argument.
@@ -31,53 +33,55 @@ Async graph resolver shines in cases when you have a bunch of asynchronous reque
 - `addNode(node: AsyncNode): AsyncGraph` - add async node to the graph. Returns updated graph to easily chain consecutive `addNode` calls. This function throws `Error` in case node with such id exists or adding this node will result in circular dependencies.
 - `resolve(): Promise<any>` - initiate graph resolving, returns Promise fulfilled with object map of node resolvement values by node id or first failure encountered. Trying to resolve invalid graph (if it nodes with non-existent dependencies) will result in runtime error.
 
-### Examples
+### Real-World Example
 Let's see an example where we need to build following flow of async actions
 
 ![](assets/graph.png)
 
+#### Without using Async Graph Resolver
 ```javascript
-//Without using AGR(Optimized)
-const raffledCustomerId = await getRaffledCustomerId();
+const customerId = await getCustomerId();
 
-const customerPreferencesPromise = getCustomerPreferences(raffledCustomerId);
+const customerPreferencesPromise = getCustomerPreferences(customerId);
 
-const customerLocationPromise = getCustomerLocation(raffledCustomerId);
+const customerLocationPromise = getCustomerLocation(customerId);
 
 const availableRestaurantsPromise = Promise.all([customerPreferencesPromise, customerLocationPromise])
   .then(results => getAvailableRestaurants(results[0], results[1]));
 
-const customerFriendsPromise = getCusomterFriends(raffledCustomerId);
+const customerFriendsPromise = getCusomterFriends(customerId);
 
 const recommendedRestaurantsPromise = Promise.all([customerFriendsPromise, availableRestaurantsPromise])
   .then(results => getRelevantRestaurants(results[0], results[1]));
 
 const result = {
-  raffledCustomerId,
+  customerId,
   customerPreferences: await customerPreferencesPromise,
   customerLocation: await customerLocationPromise,
   availableRestaurants: await availableRestaurantsPromise,
   customerFriends: await customerFriendsPromise,
   recommendedRestaurants: await recommendedRestaurantsPromise
 };
+```
 
-//Using AGR
+#### Using Async Graph Resolver
+```javascript
 import { AsyncGraph } from 'async-graph-resolver';
 
 const relevantRestaurantsGraph = new AsyncGraph()
   .addNode({
-    id: 'raffledCustomerId',
-    run: () => getRaffledCustomerId()
+    id: 'customerId',
+    run: () => getCustomerId()
   })
   .addNode({
     id: 'customerPreferences',
-    run: ({raffledCustomerId}) => getCustomerPreferences(raffledCustomerId),
-    dependancies: ['raffledCustomerId']
+    run: ({customerId}) => getCustomerPreferences(customerId),
+    dependancies: ['customerId']
   })
   .addNode({
     id: 'customerLocation',
-    run: ({raffledCustomerId}) => getCustomerLocation(raffledCustomerId),
-    dependancies: ['raffledCustomerId']
+    run: ({customerId}) => getCustomerLocation(customerId),
+    dependancies: ['customerId']
   })
   .addNode({
     id: 'availableRestaurants',
@@ -86,8 +90,8 @@ const relevantRestaurantsGraph = new AsyncGraph()
   })
   .addNode({
     id: 'customerFriends',
-    run: ({raffledCustomerId}) => getCusomterFriends(raffledCustomerId),
-    dependancies: ['raffledCustomerId']
+    run: ({customerId}) => getCusomterFriends(customerId),
+    dependancies: ['customerId']
   })
   .addNode({
     id: 'recommendedRestaurants',
