@@ -37,6 +37,31 @@ Let's see an example where we need to build following flow of async actions
 ![](assets/graph.png)
 
 ```javascript
+//Without using AGR(Optimized)
+const raffledCustomerId = await getRaffledCustomerId();
+
+const customerPreferencesPromise = getCustomerPreferences(raffledCustomerId);
+
+const customerLocationPromise = getCustomerLocation(raffledCustomerId);
+
+const availableRestaurantsPromise = Promise.all([customerPreferencesPromise, customerLocationPromise])
+  .then(results => getAvailableRestaurants(results[0], results[1]));
+
+const customerFriendsPromise = getCusomterFriends(raffledCustomerId);
+
+const recommendedRestaurantsPromise = Promise.all([customerFriendsPromise, availableRestaurantsPromise])
+  .then(results => getRelevantRestaurants(results[0], results[1]));
+
+const result = {
+  raffledCustomerId,
+  customerPreferences: await customerPreferencesPromise,
+  customerLocation: await customerLocationPromise,
+  availableRestaurants: await availableRestaurantsPromise,
+  customerFriends: await customerFriendsPromise,
+  recommendedRestaurants: await recommendedRestaurantsPromise
+};
+
+//Using AGR
 import { AsyncGraph } from 'async-graph-resolver';
 
 const relevantRestaurantsGraph = new AsyncGraph()
@@ -70,8 +95,5 @@ const relevantRestaurantsGraph = new AsyncGraph()
     dependancies: ['customerFriends', 'availableRestaurants']
   })
 
-const result = await relevantRestaurantsGraph.resolve()
-  .then(({recommendedRestaurants}) => ({
-    relevantResturants: recommendedRestaurants
-  });
+const result = await relevantRestaurantsGraph.resolve();
 ```
