@@ -29,8 +29,7 @@ Async graph resolver shines in cases when you have a bunch of asynchronous reque
 `AsyncGraph` - the main entity exposed by the library
 - `constructor(): AsyncGraph` - constructor for AsyncGraphs
 - `addNode(node: AsyncNode) AsyncGraph` - add async node to the graph. Returns updated graph to easily chain consecutive `addNode` calls. This function throws `Error` in case node with such id exists or adding this node will result in circular dependencies.
-- `useFormatter(formatter: function): AsyncGraph` - function to rearrange data before sending returning graph result.
-- `resolve(): Promise<any>` - initiate graph resolving, returns result map or formatter output if custom formatter is present. In case of a failure returns first rejection. Throws error if graph is has non-existent dependencies.
+- `resolve(): Promise<any>` - initiate graph resolving, returns Promise fulfilled with object map of node resolvement values by node id or first failure encountered. Trying to resolve invalid graph (if it nodes with non-existent dependencies) will result in runtime error.
 
 ### Examples
 ```javascript
@@ -66,9 +65,9 @@ const relevantRestaurantsGraph = new AsyncGraph()
     run: ({customerFriends, availableRestaurants}) => getRelevantRestaurants(customerFriends, availableRestaurants),
     dependancies: ['customerFriends', 'availableRestaurants']
   })
-  .useFormatter(({recommendedRestaurants}) => ({
+
+const result = await relevantRestaurantsGraph.resolve()
+  .then(({recommendedRestaurants}) => ({
     relevantResturants: recommendedRestaurants
   });
-
-const result = await relevantRestaurantsGraph.resolve();
 ```

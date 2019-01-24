@@ -10,8 +10,6 @@ export interface IAsyncNode {
   dependencies?: string[];
 }
 
-export type IAsyncResultFormatter = (nodes: any) => any;
-
 const hasCircularDependencies = (nodes: IAsyncNode[], node: IAsyncNode) => {
   const flattenedDependencies = new Set();
 
@@ -40,14 +38,12 @@ export class AsyncGraph {
   private readonly nodes: IAsyncNode[];
   private unresolvedNodes: IAsyncNode[];
   private result: any;
-  private hasFailed: boolean;
+  private hasFailedNodes: boolean;
   private resolveGraph: (error?: Error) => void;
-  private formatter: IAsyncResultFormatter;
   private graphPromise: Promise<any>;
 
   constructor() {
     this.nodes = [];
-    this.formatter = result => result;
     this.resolve = this.resolve.bind(this);
     this.addNode = this.addNode.bind(this);
   }
@@ -72,10 +68,6 @@ export class AsyncGraph {
     this.validateNode(asyncNode);
     this.nodes.push(asyncNode);
     return this;
-  }
-
-  public useFormatter(formatter: IAsyncResultFormatter) {
-    this.formatter = formatter;
   }
 
   private verifyGraphDependencies() {
@@ -105,7 +97,7 @@ export class AsyncGraph {
       this.graphPromise = new Promise((resolve, reject) => {
         this.resolveGraph = error =>
           error ? reject(error) : resolve(this.result);
-      }).then(this.formatter);
+      });
     }
 
     return this.graphPromise;
@@ -128,7 +120,7 @@ export class AsyncGraph {
   private resolveReadyNodes() {
     if (
       this.nodes.length === Object.keys(this.result).length ||
-      this.hasFailed
+      this.hasFailedNodes
     ) {
       return this.resolveGraph();
     }
@@ -136,7 +128,7 @@ export class AsyncGraph {
       .filter(node => this.isReadyToResolve(node))
       .forEach(node =>
         this.resolveSingleNode(node).catch(error => {
-          this.hasFailed = true;
+          this.hasFailedNodes = true;
           this.resolveGraph(error);
         }),
       );
