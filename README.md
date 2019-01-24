@@ -32,6 +32,10 @@ Async graph resolver shines in cases when you have a bunch of asynchronous reque
 - `resolve(): Promise<any>` - initiate graph resolving, returns Promise fulfilled with object map of node resolvement values by node id or first failure encountered. Trying to resolve invalid graph (if it nodes with non-existent dependencies) will result in runtime error.
 
 ### Examples
+Let's see an example where we need to build following flow of async actions
+
+![](assets/graph.png)
+
 ```javascript
 import { AsyncGraph } from 'async-graph-resolver';
 
