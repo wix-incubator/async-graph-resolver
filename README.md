@@ -76,27 +76,27 @@ const relevantRestaurantsGraph = new AsyncGraph()
   .addNode({
     id: 'customerPreferences',
     run: ({customerId}) => getCustomerPreferences(customerId),
-    dependancies: ['customerId']
+    dependencies: ['customerId']
   })
   .addNode({
     id: 'customerLocation',
     run: ({customerId}) => getCustomerLocation(customerId),
-    dependancies: ['customerId']
+    dependencies: ['customerId']
   })
   .addNode({
     id: 'availableRestaurants',
     run: ({customerPreferences, customerLocation}) => getAvailableRestaurants(customerPreferences, customerLocation),
-    dependancies: ['customerPreferences', 'customerLocation']
+    dependencies: ['customerPreferences', 'customerLocation']
   })
   .addNode({
     id: 'customerFriends',
     run: ({customerId}) => getCusomterFriends(customerId),
-    dependancies: ['customerId']
+    dependencies: ['customerId']
   })
   .addNode({
     id: 'recommendedRestaurants',
     run: ({customerFriends, availableRestaurants}) => getRelevantRestaurants(customerFriends, availableRestaurants),
-    dependancies: ['customerFriends', 'availableRestaurants']
+    dependencies: ['customerFriends', 'availableRestaurants']
   })
 
 const result = await relevantRestaurantsGraph.resolve();
