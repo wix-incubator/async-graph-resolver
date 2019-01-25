@@ -1,7 +1,7 @@
 import { AsyncGraph } from '../src';
 import { expect } from 'chai';
 
-describe('default formatter', () => {
+describe('basic functionality', () => {
   it('should resolve single node', async () => {
     const graph = new AsyncGraph();
 
