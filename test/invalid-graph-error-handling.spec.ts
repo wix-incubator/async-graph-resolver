@@ -20,51 +20,6 @@ describe('error handling', () => {
         `Async node with id: 'id1' alredy exists`,
       );
     });
-
-    it('should throw an error when adding a node that creates circular dependency to itself', () => {
-      const addNodeWithReferenceToItself = (graph: AsyncGraph) =>
-        graph.addNode({
-          id: 'A',
-          run: Promise.resolve,
-          dependencies: ['A'],
-        });
-
-      expect(() => addNodeWithReferenceToItself(new AsyncGraph())).to.throw(
-        Error,
-        `Adding async node with id: 'A' creates circular dependency`,
-      );
-    });
-
-    it('should throw an error when adding a node that creates circular dependency', () => {
-      const populateGraphWithCircularDependency = (graph: AsyncGraph) =>
-        graph
-          .addNode({
-            id: 'A',
-            run: Promise.resolve,
-            dependencies: ['0', 'B'],
-          })
-          .addNode({
-            id: 'C',
-            run: Promise.resolve,
-            dependencies: ['0', 'A'],
-          })
-          .addNode({
-            id: 'B',
-            run: Promise.resolve,
-            dependencies: ['0', 'C'],
-          })
-          .addNode({
-            id: '0',
-            run: Promise.resolve,
-          });
-
-      expect(() =>
-        populateGraphWithCircularDependency(new AsyncGraph()),
-      ).to.throw(
-        Error,
-        `Adding async node with id: 'B' creates circular dependency`,
-      );
-    });
   });
 
   describe('resolve graph', () => {
@@ -79,7 +34,50 @@ describe('error handling', () => {
 
       expect(graph.resolve).to.throw(
         Error,
-        `Dependency with id: 'id2' doesn't exist`,
+        `Dependency with id(s): ['id2'] do not exist`,
+      );
+    });
+
+    it('should throw an error when circular dependency of node to itself detected', () => {
+      const graph = new AsyncGraph();
+      graph.addNode({
+        id: 'A',
+        run: Promise.resolve,
+        dependencies: ['A'],
+      });
+
+      expect(graph.resolve).to.throw(
+        Error,
+        `A circular dependency path was detected: A -> A`,
+      );
+    });
+
+    it('should throw an error when circular dependency detected', () => {
+      const graph = new AsyncGraph();
+      graph
+        .addNode({
+          id: 'A',
+          run: Promise.resolve,
+          dependencies: ['0', 'B'],
+        })
+        .addNode({
+          id: 'C',
+          run: Promise.resolve,
+          dependencies: ['0', 'A'],
+        })
+        .addNode({
+          id: 'B',
+          run: Promise.resolve,
+          dependencies: ['0', 'C'],
+        })
+        .addNode({
+          id: '0',
+          run: Promise.resolve,
+        });
+
+      expect(graph.resolve).to.throw(
+        Error,
+        `A circular dependency path was detected: A -> C -> B -> A`,
       );
     });
   });
