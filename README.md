@@ -1,5 +1,5 @@
 <a href="https://travis-ci.org/wix-incubator/async-graph-resolver"><img src="https://travis-ci.org/wix-incubator/async-graph-resolver.svg?branch=master" alt="build status"></a>
-![](badges/badge-lines.svg)
+<a href="https://www.npmjs.com/package/jest-coverage-badges">![](badges/badge-lines.svg)</a>
 
 # async-graph-resolver
 A utility to simplify writing and optimize execution of dependant async actions.
