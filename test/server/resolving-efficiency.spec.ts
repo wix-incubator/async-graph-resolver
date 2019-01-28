@@ -1,5 +1,4 @@
-import { AsyncGraph } from '../src';
-import { expect } from 'chai';
+import { AsyncGraph } from '../../src';
 
 describe('resolving efficiency', () => {
   it('should resolve the graph in the most efficient order', async () => {
@@ -60,7 +59,7 @@ describe('resolving efficiency', () => {
 
     await graph.resolve();
 
-    expect(invokingAndResolvingOrder).to.deep.equal([
+    expect(invokingAndResolvingOrder).toEqual([
       'invoking id1',
       'invoking id2',
       'resolving id1',

@@ -1,5 +1,4 @@
-import { AsyncGraph } from '../src';
-import { expect } from 'chai';
+import { AsyncGraph } from '../../src';
 
 describe('basic functionality', () => {
   it('should resolve single node', async () => {
@@ -9,7 +8,7 @@ describe('basic functionality', () => {
       id: 'id1',
       run: () => Promise.resolve(1),
     });
-    expect(await graph.resolve()).to.deep.equal({
+    expect(await graph.resolve()).toEqual({
       id1: 1,
     });
   });
@@ -27,7 +26,7 @@ describe('basic functionality', () => {
         run: ({ id1 }) => Promise.resolve((id1 as number) + 999),
         dependencies: ['id1'],
       });
-    expect(await graph.resolve()).to.deep.equal({
+    expect(await graph.resolve()).toEqual({
       id1: 1,
       someId: 1000,
     });
@@ -57,7 +56,7 @@ describe('basic functionality', () => {
         dependencies: ['someId1', 'someId2'],
       });
 
-    expect(await graph.resolve()).to.deep.equal({
+    expect(await graph.resolve()).toEqual({
       id1: 0,
       someId1: 1,
       someId2: 2,
@@ -97,7 +96,7 @@ describe('basic functionality', () => {
         dependencies: ['id3', 'id5_7'],
       });
 
-    expect(await graph.resolve()).to.deep.equal({
+    expect(await graph.resolve()).toEqual({
       id3: 3,
       id5: 5,
       id7: 7,

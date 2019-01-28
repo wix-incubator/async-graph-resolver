@@ -1,5 +1,4 @@
-import { AsyncGraph } from '../src';
-import { expect } from 'chai';
+import { AsyncGraph } from '../../src';
 
 describe('error handling', () => {
   describe('addNode', () => {
@@ -15,8 +14,7 @@ describe('error handling', () => {
             run: Promise.resolve,
           });
 
-      expect(() => addNonUniqueNodes(new AsyncGraph())).to.throw(
-        Error,
+      expect(() => addNonUniqueNodes(new AsyncGraph())).toThrow(
         `Async node with id: 'id1' alredy exists`,
       );
     });
@@ -32,8 +30,7 @@ describe('error handling', () => {
         dependencies: ['id2'],
       });
 
-      expect(graph.resolve).to.throw(
-        Error,
+      expect(graph.resolve).toThrow(
         `Dependency with id(s): ['id2'] do not exist`,
       );
     });
@@ -46,8 +43,7 @@ describe('error handling', () => {
         dependencies: ['A'],
       });
 
-      expect(graph.resolve).to.throw(
-        Error,
+      expect(graph.resolve).toThrow(
         `A circular dependency path was detected: A -> A`,
       );
     });
@@ -75,8 +71,7 @@ describe('error handling', () => {
           run: Promise.resolve,
         });
 
-      expect(graph.resolve).to.throw(
-        Error,
+      expect(graph.resolve).toThrow(
         `A circular dependency path was detected: A -> C -> B -> A`,
       );
     });

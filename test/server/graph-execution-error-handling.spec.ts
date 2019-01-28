@@ -1,20 +1,11 @@
-import { AsyncGraph } from '../src';
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-
-before(() => {
-  chai.should();
-  chai.use(chaiAsPromised);
-});
-
-const expect = chai.expect;
+import { AsyncGraph } from '../../src';
 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time));
 
 describe('error handling', () => {
   describe('default error handling strategy: fail if any node execution fails', () => {
-    it('should reject promise with error returned by first rejected promise', () => {
-      return new AsyncGraph()
+    it('should reject promise with error returned by first rejected promise', async () => {
+      const graph = new AsyncGraph()
         .addNode({
           id: 'id1',
           run: () => Promise.resolve(1),
@@ -37,9 +28,9 @@ describe('error handling', () => {
           id: 'id5',
           run: () => Promise.resolve(5),
           dependencies: ['id1'],
-        })
-        .resolve()
-        .should.be.rejectedWith(Error, 'id2');
+        });
+
+      await expect(graph.resolve()).rejects.toThrow('id2');
     });
 
     it('should stop promise execution in when error is encountered', async () => {
@@ -87,7 +78,7 @@ describe('error handling', () => {
           .resolve();
       } catch (err) {
         await sleep(200);
-        expect(executionStack).to.deep.equal(['id1', 'id2']);
+        expect(executionStack).toEqual(['id1', 'id2']);
         return Promise.resolve();
       }
 

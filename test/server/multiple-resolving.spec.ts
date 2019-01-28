@@ -1,5 +1,4 @@
-import { AsyncGraph } from '../src';
-import { expect } from 'chai';
+import { AsyncGraph } from '../../src';
 
 describe('multiple resolving', () => {
   it('should return cached result in case of multiple resolving', async () => {
@@ -20,11 +19,11 @@ describe('multiple resolving', () => {
     backendAsyncResult = 'Second Result';
     const secondResult = await graph.resolve();
 
-    expect(nodeRunsCounter).to.eq(1);
-    expect(firstResult).to.deep.eq({
+    expect(nodeRunsCounter).toEqual(1);
+    expect(firstResult).toEqual({
       id1: 'First Result',
     });
-    expect(secondResult).to.deep.eq({
+    expect(secondResult).toEqual({
       id1: 'First Result',
     });
   });
