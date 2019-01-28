@@ -1,4 +1,5 @@
 <a href="https://travis-ci.org/wix-incubator/async-graph-resolver"><img src="https://travis-ci.org/wix-incubator/async-graph-resolver.svg?branch=master" alt="build status"></a>
+![](badges/badge-lines.svg)
 
 # async-graph-resolver
 A utility to simplify writing and optimize execution of dependant async actions.

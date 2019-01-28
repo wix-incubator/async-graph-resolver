@@ -19,15 +19,18 @@
     "pretest": "yoshi build",
     "test": "yoshi test --jest",
     "posttest": "yoshi lint",
-    "release": "yoshi release"
+    "release": "yoshi release",
+    "test:coverage": "npm test -- --coverage",
+    "test:badges": "npm run test:coverage  && jest-coverage-badges output ./badges"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
-    "jest-yoshi-preset": "^3.5.0",
-    "puppeteer": "^1.11.0",
     "@types/node": "^8.0.0",
     "husky": "~0.14.0",
+    "jest-coverage-badges": "^1.1.2",
+    "jest-yoshi-preset": "^3.5.0",
     "lint-staged": "^7.2.2",
+    "puppeteer": "^1.11.0",
     "typescript": "~3.0.1",
     "yoshi": "^3.0.0"
   },
@@ -40,7 +43,13 @@
     ]
   },
   "jest": {
-    "preset": "jest-yoshi-preset"
+    "preset": "jest-yoshi-preset",
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json-summary",
+      "text",
+      "lcov"
+    ]
   },
   "yoshi": {
     "hmr": "auto"
