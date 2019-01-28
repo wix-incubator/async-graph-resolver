@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "yoshi start",
-    "precommit": "lint-staged",
+    "precommit": "lint-staged && npm run test:badges && git add .",
     "pretest": "yoshi build",
     "test": "yoshi test --jest",
     "posttest": "yoshi lint",
